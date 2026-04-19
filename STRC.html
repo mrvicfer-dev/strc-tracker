@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STRC — Suivi & Analyse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Spectral:ital,wght@0,300;0,400;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --orange: #D94F00;
+    --orange-light: #FFF0E8;
+    --orange-mid: #F5A87A;
+    --cream: #FAF8F4;
+    --cream2: #F2EDE5;
+    --cream3: #E8E0D4;
+    --ink: #1C1814;
+    --ink2: #3D342A;
+    --ink3: #6B5E52;
+    --ink4: #9C8E82;
+    --border: #DDD5C8;
+    --border-strong: #C4B8A8;
+    --green: #1A6B3C;
+    --green-bg: #EEF7F2;
+    --red: #B83232;
+    --red-bg: #FDF0F0;
+    --amber: #8B6300;
+    --amber-bg: #FFF8E8;
+    --white: #FFFFFF;
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Spectral', serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    height: 58px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  }
+  .nav-brand {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--orange);
+    margin-right: 3rem;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .nav-links { display: flex; gap: 0; }
+  .nav-link {
+    padding: 0 1.25rem;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    cursor: pointer;
+    transition: color 0.15s;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-link:hover { color: var(--ink); }
+  .nav-link.active { color: var(--orange); border-bottom-color: var(--orange); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* HERO */
+  .hero {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 4rem 2.5rem 3.5rem;
+  }
+  .hero-inner { max-width: 1100px; margin: 0 auto; }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    color: var(--orange);
+    text-transform: uppercase;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 28px;
+    height: 1px;
+    background: var(--orange);
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 7vw, 80px);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+  }
+  .hero-title span { color: var(--orange); }
+  .hero-subtitle {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-weight: 300;
+    font-size: 19px;
+    color: var(--ink3);
+    max-width: 560px;
+    line-height: 1.6;
+  }
+
+  /* MAIN CONTENT */
+  .main { max-width: 1100px; margin: 0 auto; padding: 3rem 2.5rem 5rem; }
+
+  /* SECTION */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--ink);
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink4);
+  }
+
+  /* STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+  }
+  .stat-card {
+    background: var(--white);
+    padding: 1.5rem 1.25rem;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink4);
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .stat-value.orange { color: var(--orange); }
+  .stat-value.green { color: var(--green); }
+  .stat-sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink4);
+    margin-top: 5px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.5rem;
+  }
+  .card-accent { border-left: 3px solid var(--orange); }
+  .card-warning { border-left: 3px solid var(--red); background: var(--red-bg); }
+  .card-success { border-left: 3px solid var(--green); background: var(--green-bg); }
+  .card-notice { background: var(--orange-light); border: 1px solid var(--orange-mid); border-radius: 6px; padding: 1rem 1.25rem; font-size: 14px; color: var(--ink2); margin-bottom: 2rem; }
+  .card-notice strong { color: var(--orange); }
+
+  /* GRID */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+  @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+  }
+  .card-text {
+    font-size: 14px;
+    color: var(--ink2);
+    line-height: 1.75;
+  }
+  .card-text strong { color: var(--orange); font-weight: 600; }
+
+  /* FLOW */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 2rem 0;
+    overflow-x: auto;
+  }
+  .flow-step {
+    flex: 1;
+    min-width: 130px;
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    border-right: none;
+    padding: 1rem;
+    position: relative;
+  }
+  .flow-step:last-child { border-right: 1px solid var(--border); }
+  .flow-step::after {
+    content: '→';
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--orange);
+    font-size: 16px;
+    z-index: 2;
+    background: var(--cream);
+    padding: 0 2px;
+  }
+  .flow-step:last-child::after { display: none; }
+  .flow-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--orange);
+    margin-bottom: 5px;
+  }
+  .flow-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+  .flow-text { font-size: 12px; color: var(--ink3); line-height: 1.5; }
+
+  /* TIMELINE */
+  .timeline { padding-left: 2rem; position: relative; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 8px; bottom: 0;
+    width: 1px;
+    background: var(--orange-mid);
+  }
+  .timeline-item { position: relative; margin-bottom: 2rem; }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 6px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--orange);
+    transform: translateX(-3.5px);
+  }
+  .tl-date { font-family: var(--font-mono); font-size: 11px; color: var(--orange); margin-bottom: 3px; }
+  .tl-title { font-size: 14px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+  .tl-text { font-size: 13px; color: var(--ink3); line-height: 1.6; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+  /* TABLE */
+  .table-wrap { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--white); }
+  table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.data-table th {
+    background: var(--cream2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+  table.data-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink2);
+    vertical-align: top;
+  }
+  table.data-table tr:last-child td { border-bottom: none; }
+  table.data-table td:first-child { color: var(--ink); font-weight: 600; }
+  table.data-table tr:hover td { background: var(--cream2); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .badge-high { background: var(--red-bg); color: var(--red); border: 1px solid #F5CCCC; }
+  .badge-mid { background: var(--amber-bg); color: var(--amber); border: 1px solid #F0DBA0; }
+  .badge-low { background: var(--green-bg); color: var(--green); border: 1px solid #B8DEC8; }
+
+  /* ROC */
+  .roc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
+  @media (max-width: 600px) { .roc-grid { grid-template-columns: 1fr; } }
+  .roc-box { background: var(--cream2); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; }
+  .roc-box-title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem; }
+  .roc-box-title.orange { color: var(--orange); }
+  .roc-box-title.muted { color: var(--ink4); }
+
+  /* TRACKER */
+  .summary-banner {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--orange);
+    border-radius: 6px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  @media (max-width: 700px) { .summary-banner { grid-template-columns: 1fr 1fr; } }
+  .sum-big { font-family: var(--font-display); font-size: 44px; font-weight: 700; color: var(--orange); line-height: 1; }
+  .sum-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink4); margin-bottom: 4px; }
+  .sum-val { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--ink); }
+
+  /* TRACKER TABLE */
+  .tracker-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 6px; background: var(--white); margin-bottom: 2rem; }
+  table.tracker { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.tracker th {
+    background: var(--cream2);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink3);
+    padding: 0.75rem 1rem;
+    text-align: right;
+    border-bottom: 2px solid var(--orange);
+    white-space: nowrap;
+    font-weight: 400;
+  }
+  table.tracker th:first-child,
+  table.tracker th:nth-child(2) { text-align: left; }
+  table.tracker td {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink3);
+    white-space: nowrap;
+  }
+  table.tracker td:first-child { text-align: left; font-family: var(--font-body); font-weight: 600; color: var(--ink); }
+  table.tracker td:nth-child(2) { text-align: left; font-family: var(--font-mono); }
+  table.tracker tr:hover td { background: var(--cream2); }
+  table.tracker .pos { color: var(--green); }
+  table.tracker .neg { color: var(--red); }
+  table.tracker .div-cell { color: var(--orange); font-weight: 500; }
+  table.tracker tfoot td { border-top: 2px solid var(--orange); font-weight: 600; color: var(--ink); background: var(--cream2); }
+  table.tracker tfoot td:first-child { color: var(--orange); }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+  .form-field { display: flex; flex-direction: column; gap: 5px; }
+  .form-field label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink4); }
+  .form-field input {
+    background: var(--white);
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    transition: border-color 0.15s;
+  }
+  .form-field input:focus { outline: none; border-color: var(--orange); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid;
+  }
+  .btn-primary { background: var(--orange); border-color: var(--orange); color: var(--white); }
+  .btn-primary:hover { background: #B84200; }
+  .btn-ghost { background: transparent; border-color: var(--border-strong); color: var(--ink3); }
+  .btn-ghost:hover { border-color: var(--ink3); color: var(--ink); }
+  .btn-danger { background: transparent; border-color: #F5CCCC; color: var(--red); font-size: 10px; padding: 3px 8px; }
+  .btn-danger:hover { background: var(--red-bg); }
+
+  /* CHART */
+  .chart-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .chart-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink4);
+    margin-bottom: 1.25rem;
+  }
+
+  /* COMPARISON TABLE */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink4);
+    padding: 0.6rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-weight: 400;
+  }
+  .comp-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--ink2); }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table td:first-child { color: var(--ink); font-weight: 600; }
+  .comp-table tr.highlight td { background: var(--orange-light); }
+  .comp-table tr.highlight td:first-child { color: var(--orange); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 2.5rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--ink4);
+    letter-spacing: 0.06em;
+    background: var(--white);
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 2.5rem 1.25rem 2rem; }
+    .main { padding: 2rem 1.25rem 3rem; }
+    nav { padding: 0 1rem; }
+    .nav-brand { margin-right: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">STRC</div>
+  <div class="nav-links">
+    <div class="nav-link active" onclick="showPage('presentation', this)">Présentation</div>
+    <div class="nav-link" onclick="showPage('mecanisme', this)">Mécanisme</div>
+    <div class="nav-link" onclick="showPage('risques', this)">Risques</div>
+    <div class="nav-link" onclick="showPage('suivi', this)">Mon Suivi</div>
+  </div>
+</nav>
+
+<!-- PAGE 1: PRÉSENTATION -->
+<div class="page active" id="page-presentation">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Strategy Inc. · Nasdaq · Perpétuel</div>
+      <div class="hero-title">STRC — <span>Stretch</span></div>
+      <div class="hero-subtitle">Action préférentielle perpétuelle à haut rendement — et pourquoi le retour sur capital change tout pour un investisseur français.</div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Prix par action</div>
+        <div class="stat-value">$100</div>
+        <div class="stat-sub">Valeur nominale cible</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Rendement courant</div>
+        <div class="stat-value orange">11.5%</div>
+        <div class="stat-sub">Variable, ajusté mensuellement</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Fréquence</div>
+        <div class="stat-value">Mensuel</div>
+        <div class="stat-sub">Bientôt semi-mensuel</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Type de versement</div>
+        <div class="stat-value orange">ROC</div>
+        <div class="stat-sub">Retour sur capital</div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Qu'est-ce que STRC ?</div>
+      <div class="section-label">Fondamentaux</div>
+    </div>
+
+    <div class="two-col">
+      <div class="card card-accent">
+        <div class="card-title">Une action préférentielle perpétuelle</div>
+        <div class="card-text">STRC est émise par <strong>Strategy Inc.</strong> (ex-MicroStrategy), l'entreprise de Michael Saylor qui détient le plus grand trésor en Bitcoin au monde parmi les sociétés cotées. Ce n'est pas une action ordinaire : vous touchez un <strong>dividende fixé contractuellement</strong>, prioritaire sur les actionnaires communs. C'est plus proche d'une obligation que d'une action, sans date d'échéance.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Pourquoi le prix reste autour de $100</div>
+        <div class="card-text">Strategy ajuste le taux de dividende <strong>chaque mois</strong> pour ancrer le cours. Si le cours monte, ils émettent de nouvelles actions (dilution → prix baisse). Si le cours descend, ils montent le taux pour attirer des acheteurs. Résultat : une <strong>volatilité de seulement 1.7%</strong> sur 30 jours — exceptionnelle pour un produit lié à Bitcoin.</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-header">
+      <div class="section-title">Le point clé : Retour sur Capital</div>
+      <div class="section-label">Fiscalité</div>
+    </div>
+
+    <div class="card-notice">
+      <strong>Important :</strong> Ces informations sont à titre pédagogique. Vérifiez votre situation personnelle avec un conseiller fiscal — les règles varient selon votre pays de résidence et l'évolution des qualifications ROC.
+    </div>
+
+    <div class="roc-grid">
+      <div class="roc-box">
+        <div class="roc-box-title orange">Retour sur Capital (ROC)</div>
+        <div class="card-text">Le ROC n'est <strong>pas un revenu</strong> au sens fiscal. C'est un remboursement partiel de votre investissement initial. Quand Strategy verse un dividende ROC de $1, elle reconnaît que ce dollar vient de votre propre capital, pas de ses bénéfices.<br><br><strong>Conséquence :</strong> ce versement n'est pas imposé à la réception. Il diminue votre prix de revient. L'impôt n'est dû que si vous vendez, sur la plus-value résultante.</div>
+      </div>
+      <div class="roc-box">
+        <div class="roc-box-title muted">Dividende ordinaire (comparaison)</div>
+        <div class="card-text">Un dividende classique représente une distribution des bénéfices. En France, il est soumis à la <strong>flat tax de 30%</strong> (12.8% IR + 17.2% prélèvements sociaux) dès réception.<br><br>Pour un rendement de 11%, vous touchez effectivement <strong>7.7% nets</strong> après impôt. Avec le ROC, vous réinvestissez les <strong>11% bruts</strong> — l'imposition est différée.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:1.5rem">
+      <div class="card-title">Exemple concret sur $10 000 investis</div>
+      <div style="margin-top:1rem; overflow-x:auto;">
+        <table class="comp-table">
+          <thead><tr><th>Scénario</th><th>Versé/an</th><th>Impôt immédiat</th><th>Réinvestissable</th></tr></thead>
+          <tbody>
+            <tr class="highlight"><td>STRC (ROC, si qualifié)</td><td style="color:var(--green);font-weight:600">$1 150</td><td style="color:var(--green);font-weight:600">$0 *</td><td style="color:var(--green);font-weight:600">$1 150</td></tr>
+            <tr><td>Dividende ordinaire 11%</td><td>$1 150</td><td style="color:var(--red)">−$345</td><td>$805</td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:12px;color:var(--ink4);margin-top:0.75rem">* L'impôt est différé, non supprimé. Il sera dû sur la plus-value à la revente si le prix de revient ajusté est dépassé.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: MÉCANISME -->
+<div class="page" id="page-mecanisme">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Analyse · Comment ça marche</div>
+      <div class="hero-title">Le <span>Mécanisme</span></div>
+      <div class="hero-subtitle">Comment Strategy maintient un cours stable et verse un rendement élevé — et quelle est la pièce maîtresse du système.</div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="section-header">
+      <div class="section-title">Le cycle complet</div>
+      <div class="section-label">Vue d'ensemble</div>
+    </div>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-num">01</div><div class="flow-title">Bitcoin monte</div><div class="flow-text">Strategy détient ~500 000 BTC. Si BTC fait +30%/an, la valeur de leur trésor augmente massivement.</div></div>
+      <div class="flow-step"><div class="flow-num">02</div><div class="flow-title">Émission de capital</div><div class="flow-text">Strategy émet des actions MSTR ou STRC pour lever des fonds supplémentaires via ATM.</div></div>
+      <div class="flow-step"><div class="flow-num">03</div><div class="flow-title">Achat de BTC</div><div class="flow-text">Les fonds levés sont utilisés pour acheter encore plus de Bitcoin, renforçant le cycle.</div></div>
+      <div class="flow-step"><div class="flow-num">04</div><div class="flow-title">Dividende STRC</div><div class="flow-text">Les détenteurs reçoivent ~11%/an, financé par les flux de la machine BTC.</div></div>
+    </div>
+
+    <div class="card-notice">
+      <strong>L'hypothèse centrale :</strong> Pour que ce système tienne, Bitcoin doit continuer à générer des rendements supérieurs au coût du dividende. Si BTC fait +30%/an, verser 11% est soutenable. Si BTC stagne ou chute, la soutenabilité est questionnée.
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-header">
+      <div class="section-title">Comment le prix est stabilisé</div>
+      <div class="section-label">Taux variable</div>
+    </div>
+    <div class="two-col">
+      <div class="card card-warning">
+        <div class="card-title" style="color:var(--red)">Prix &gt; $100 : trop chaud</div>
+        <div class="card-text" style="color:var(--ink2)">Strategy émet de nouvelles actions STRC sur le marché (ATM). Cette dilution augmente l'offre et ramène le prix vers $100. Le taux peut aussi être légèrement abaissé pour freiner la demande.</div>
+      </div>
+      <div class="card card-success">
+        <div class="card-title" style="color:var(--green)">Prix &lt; $100 : trop froid</div>
+        <div class="card-text" style="color:var(--ink2)">Strategy augmente le taux de dividende pour le mois suivant. Un rendement plus élevé attire des acheteurs, ce qui fait remonter le prix. Ce mécanisme explique la volatilité exceptionnellement faible de 1.7%.</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-header">
+      <div class="section-title">Calendrier d'un versement</div>
+      <div class="section-label">Dates clés</div>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="tl-date">Début de mois (ex : 1er avril)</div>
+        <div class="tl-title">Declaration Date</div>
+        <div class="tl-text">Strategy annonce le montant du dividende pour le mois. Pour avril 2026 : $0.96 par action.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">~15 du mois (ex : 15 avril)</div>
+        <div class="tl-title">Record Date & Ex-Dividend Date</div>
+        <div class="tl-text">Vous devez détenir les actions <strong>avant</strong> cette date pour avoir droit au dividende. Acheter le 15 ou après : vous ratez ce mois.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-date">Fin de mois (ex : 30 avril)</div>
+        <div class="tl-title">Payment Date</div>
+        <div class="tl-text">Le cash arrive sur votre compte courtier. Si vous avez activé le DRIP, il est converti en fractions d'actions STRC automatiquement.</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-header">
+      <div class="section-title">Nouveauté : passage semi-mensuel</div>
+      <div class="section-label">Amendement avril 2026</div>
+    </div>
+    <div class="card card-accent">
+      <div class="card-title">Si le vote du 8 juin passe</div>
+      <div class="card-text">Strategy propose de passer à <strong>24 paiements par an</strong> au lieu de 12 — le 15 et le dernier jour de chaque mois. Le montant annuel total reste identique, chaque versement est simplement divisé par deux. Avantages : le drawdown de cours autour de l'ex-dividend date est réduit de moitié (~$0.22 au lieu de $0.45), le DRIP capitalise plus vite, et STRC deviendrait le seul titre au monde avec des dividendes semi-mensuels.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: RISQUES -->
+<div class="page" id="page-risques">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Analyse critique · Ce qu'il faut savoir</div>
+      <div class="hero-title">Les <span>Risques</span></div>
+      <div class="hero-subtitle">STRC n'est pas un produit sans risque. Une analyse honnête des scénarios défavorables.</div>
+    </div>
+  </div>
+  <div class="main">
+    <div class="card card-warning" style="margin-bottom:2rem">
+      <div class="card-title" style="color:var(--red)">Avertissement préalable</div>
+      <div class="card-text" style="color:var(--ink2)">STRC est un produit complexe dont la soutenabilité dépend fondamentalement de la performance de Bitcoin. Il ne s'agit pas d'une obligation garantie par un État ou une banque centrale. Les rendements passés ne préjugent pas des rendements futurs.</div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-title">Matrice des risques</div>
+      <div class="section-label">Analyse</div>
+    </div>
+    <div class="table-wrap" style="margin-bottom:2rem">
+      <table class="data-table">
+        <thead><tr><th>Risque</th><th>Sévérité</th><th>Description</th><th>Signal d'alerte</th></tr></thead>
+        <tbody>
+          <tr><td>Chute de Bitcoin</td><td><span class="badge badge-high">Élevée</span></td><td>Si BTC s'effondre durablement, la capacité de Strategy à lever du capital et verser les dividendes est compromise.</td><td>BTC −50% prolongé</td></tr>
+          <tr><td>Réduction du dividende</td><td><span class="badge badge-mid">Moyenne</span></td><td>Le taux est variable. Strategy peut légitimement baisser le dividende si les conditions de marché l'exigent.</td><td>Taux IB divergeant du site Strategy</td></tr>
+          <tr><td>Risque de contrepartie</td><td><span class="badge badge-mid">Moyenne</span></td><td>En cas de faillite de Strategy, les détenteurs STRC sont prioritaires sur les actionnaires MSTR, mais subordonnés aux créanciers obligataires.</td><td>Difficultés à refinancer la dette</td></tr>
+          <tr><td>Requalification ROC</td><td><span class="badge badge-mid">Moyenne</span></td><td>La classification ROC peut évoluer selon les décisions comptables de Strategy ou la SEC. Vérifier les formulaires 1099-DIV annuels.</td><td>Changement dans les rapports annuels</td></tr>
+          <tr><td>Risque fiscal (France)</td><td><span class="badge badge-mid">Moyenne</span></td><td>L'administration fiscale française pourrait requalifier les versements ROC en revenus ordinaires pour des résidents français.</td><td>Jurisprudence ou BOFIP</td></tr>
+          <tr><td>Liquidité</td><td><span class="badge badge-low">Faible</span></td><td>Volume de $514M/jour en avril — très liquide. Mais en cas de panique, les spreads peuvent s'élargir temporairement.</td><td>Volume sous $50M/jour persistant</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-header">
+      <div class="section-title">Scénarios de stress</div>
+      <div class="section-label">Et si ?</div>
+    </div>
+    <div class="two-col">
+      <div class="card card-warning">
+        <div class="card-title" style="color:var(--red)">Scénario baissier : BTC −60%</div>
+        <div class="card-text" style="color:var(--ink2)">Strategy ne peut plus lever de capital à des conditions favorables. Le flux de trésorerie se tarit. L'entreprise peut suspendre ou réduire le dividende. Le cours de STRC pourrait tomber bien en dessous de $100.</div>
+      </div>
+      <div class="card card-success">
+        <div class="card-title" style="color:var(--green)">Scénario haussier : BTC +100%</div>
+        <div class="card-text" style="color:var(--ink2)">Strategy prospère, maintient ou augmente les dividendes. Le cours STRC reste ancré à $100. L'investisseur réalise ~11% net pendant que les détenteurs MSTR bénéficient de l'upside BTC direct.</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section-header">
+      <div class="section-title">STRC vs Alternatives</div>
+      <div class="section-label">Positionnement</div>
+    </div>
+    <div class="table-wrap">
+      <table class="comp-table">
+        <thead><tr><th>Produit</th><th>Rendement</th><th>Risque principal</th><th>Volatilité</th></tr></thead>
+        <tbody>
+          <tr class="highlight"><td>STRC</td><td>~11.5%</td><td>Bitcoin + solvabilité Strategy</td><td><span class="badge badge-low">1.7% (30j)</span></td></tr>
+          <tr><td>Obligations HY (PIMCO)</td><td>~7-8%</td><td>Crédit corporate</td><td><span class="badge badge-low">Faible</span></td></tr>
+          <tr><td>MSTR (action)</td><td>0% dividende</td><td>Bitcoin volatilité directe</td><td><span class="badge badge-high">Très élevée</span></td></tr>
+          <tr><td>Bitcoin direct</td><td>0% dividende</td><td>Marché crypto</td><td><span class="badge badge-high">Très élevée</span></td></tr>
+          <tr><td>S&P 500 (dividende)</td><td>~1.5%</td><td>Marché actions US</td><td><span class="badge badge-mid">Modérée</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: SUIVI -->
+<div class="page" id="page-suivi">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Journal de position · Personnel</div>
+      <div class="hero-title">Mon <span>Suivi</span></div>
+      <div class="hero-subtitle">Tableau de bord de ma position STRC, dividendes reçus et comparaison avec le S&P 500.</div>
+    </div>
+  </div>
+  <div class="main">
+
+    <div class="summary-banner">
+      <div>
+        <div class="sum-label">Total dividendes encaissés</div>
+        <div class="sum-big" id="sum-total-div">$0</div>
+        <div class="stat-sub" id="sum-actions-count">— actions détenues</div>
+      </div>
+      <div>
+        <div class="sum-label">Valeur position</div>
+        <div class="sum-val" id="sum-position-val">—</div>
+      </div>
+      <div>
+        <div class="sum-label">Yield cumulé</div>
+        <div class="sum-val" id="sum-yield">—</div>
+      </div>
+      <div>
+        <div class="sum-label">PL non réalisée</div>
+        <div class="sum-val" id="sum-pl">—</div>
+      </div>
+    </div>
+
+    <!-- ADD ENTRY -->
+    <div class="card" style="margin-bottom:2rem">
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink4);margin-bottom:1.25rem">Ajouter une entrée mensuelle</div>
+      <div class="form-grid">
+        <div class="form-field"><label>Période (MM-AAAA)</label><input type="text" id="f-period" placeholder="05-2026"></div>
+        <div class="form-field"><label>Nb actions</label><input type="number" id="f-actions" placeholder="25.9091" step="0.0001"></div>
+        <div class="form-field"><label>PL non réalisée ($)</label><input type="number" id="f-pl" placeholder="3.64" step="0.01"></div>
+        <div class="form-field"><label>Valeur position ($)</label><input type="number" id="f-val" placeholder="2590" step="1"></div>
+        <div class="form-field"><label>Dividende reçu ($)</label><input type="number" id="f-div" placeholder="24.86" step="0.01"></div>
+        <div class="form-field"><label>S&P 500 au paiement</label><input type="number" id="f-sp500" placeholder="5200" step="0.01"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addEntry()">+ Ajouter</button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="tracker-wrap">
+      <table class="tracker">
+        <thead>
+          <tr>
+            <th>Période</th>
+            <th>Actions</th>
+            <th style="text-align:right">PL latente</th>
+            <th style="text-align:right">Valeur pos.</th>
+            <th style="text-align:right">Dividende</th>
+            <th style="text-align:right">S&P 500</th>
+            <th style="text-align:right">Perf S&P*</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tracker-tbody">
+          <tr><td colspan="8" style="text-align:center;color:var(--ink4);padding:2rem;font-family:var(--font-mono);font-size:12px">Aucune entrée — ajoutez votre première ligne ci-dessus</td></tr>
+        </tbody>
+        <tfoot id="tracker-tfoot"></tfoot>
+      </table>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="chart-card">
+      <div class="chart-label">Dividendes cumulés ($) vs S&P 500 (base 100)</div>
+      <div style="position:relative;height:280px">
+        <canvas id="mainChart" role="img" aria-label="Dividendes cumulés STRC et S&P 500">Données de suivi.</canvas>
+      </div>
+      <div style="display:flex;gap:1.5rem;margin-top:1rem;font-size:12px;font-family:var(--font-mono);color:var(--ink4)">
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:2px;background:#D94F00;display:inline-block"></span>Dividendes cumulés ($, axe gauche)</span>
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:2px;background:#1A6B3C;display:inline-block"></span>S&P 500 base 100 (axe droit)</span>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-label">Dividende mensuel reçu ($)</div>
+      <div style="position:relative;height:180px">
+        <canvas id="divChart" role="img" aria-label="Dividendes mensuels">Dividendes mensuels.</canvas>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  STRC Tracker — Usage personnel · Données non vérifiées en temps réel · Pas de conseil en investissement
+</footer>
+
+<script>
+const STORAGE_KEY = 'strc_entries_v2';
+let entries = [];
+let mainChart = null;
+let divChart = null;
+
+function loadEntries() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) entries = JSON.parse(raw);
+  } catch(e) { entries = []; }
+  if (entries.length === 0) {
+    entries = [
+      { period: '12-2025', actions: 25, pl: null, val: null, div: null, sp500: null },
+      { period: '01-2026', actions: 25.192, pl: null, val: null, div: 13.99, sp500: null },
+      { period: '02-2026', actions: 25.4248, pl: 0.77, val: 2544, div: 20.39, sp500: null },
+      { period: '03-2026', actions: 25.6632, pl: 2.72, val: 2567, div: 21.28, sp500: null },
+      { period: '04-2026', actions: 25.9091, pl: 3.64, val: 2590, div: null, sp500: null },
+    ];
+    saveEntries();
+  }
+}
+
+function saveEntries() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); } catch(e) {}
+}
+
+function fmtPl(v) {
+  if (v === null || v === undefined || v === '') return '—';
+  const n = parseFloat(v);
+  const cls = n >= 0 ? 'pos' : 'neg';
+  return `<span class="${cls}">${n >= 0 ? '+' : ''}$${n.toFixed(2)}</span>`;
+}
+
+function addEntry() {
+  const period = document.getElementById('f-period').value.trim();
+  const actions = parseFloat(document.getElementById('f-actions').value) || null;
+  const plV = document.getElementById('f-pl').value;
+  const valV = document.getElementById('f-val').value;
+  const divV = document.getElementById('f-div').value;
+  const spV = document.getElementById('f-sp500').value;
+  const pl = plV !== '' ? parseFloat(plV) : null;
+  const val = valV !== '' ? parseFloat(valV) : null;
+  const div = divV !== '' ? parseFloat(divV) : null;
+  const sp500 = spV !== '' ? parseFloat(spV) : null;
+
+  if (!period || !actions) { alert('Période et nombre d\'actions requis.'); return; }
+
+  const existing = entries.findIndex(e => e.period === period);
+  const entry = { period, actions, pl, val, div, sp500 };
+  if (existing >= 0) entries[existing] = entry;
+  else {
+    entries.push(entry);
+    entries.sort((a, b) => {
+      const [am, ay] = a.period.split('-').map(Number);
+      const [bm, by] = b.period.split('-').map(Number);
+      return (ay * 12 + am) - (by * 12 + bm);
+    });
+  }
+  saveEntries();
+  render();
+  ['f-period','f-actions','f-pl','f-val','f-div','f-sp500'].forEach(id => document.getElementById(id).value = '');
+}
+
+function deleteEntry(i) {
+  if (!confirm('Supprimer cette entrée ?')) return;
+  entries.splice(i, 1);
+  saveEntries();
+  render();
+}
+
+function render() {
+  renderSummary();
+  renderTable();
+  renderCharts();
+}
+
+function renderSummary() {
+  const totalDiv = entries.reduce((s, e) => s + (e.div || 0), 0);
+  const lastActions = [...entries].reverse().find(e => e.actions);
+  const lastVal = [...entries].reverse().find(e => e.val);
+  const lastPl = [...entries].reverse().find(e => e.pl !== null && e.pl !== undefined);
+  const firstVal = entries.find(e => e.val);
+
+  document.getElementById('sum-total-div').textContent = '$' + totalDiv.toFixed(2);
+  document.getElementById('sum-actions-count').textContent = (lastActions ? lastActions.actions.toFixed(4) : '—') + ' actions détenues';
+  document.getElementById('sum-position-val').textContent = lastVal ? '$' + lastVal.val.toFixed(0) : '—';
+
+  if (firstVal) {
+    const y = (totalDiv / firstVal.val * 100);
+    document.getElementById('sum-yield').textContent = y.toFixed(1) + '%';
+  } else {
+    document.getElementById('sum-yield').textContent = '—';
+  }
+
+  if (lastPl) {
+    const n = lastPl.pl;
+    document.getElementById('sum-pl').innerHTML = `<span style="color:${n>=0?'var(--green)':'var(--red)'}">${n>=0?'+':''}$${n.toFixed(2)}</span>`;
+  }
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tracker-tbody');
+  const tfoot = document.getElementById('tracker-tfoot');
+
+  if (entries.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--ink4);padding:2rem;font-family:var(--font-mono);font-size:12px">Aucune entrée</td></tr>';
+    tfoot.innerHTML = '';
+    return;
+  }
+
+  const sp500Entries = entries.filter(e => e.sp500);
+  const firstSp = sp500Entries.length > 0 ? sp500Entries[0].sp500 : null;
+
+  let html = '';
+  entries.forEach((e, i) => {
+    let spPerf = '—';
+    if (e.sp500 && firstSp) {
+      const pct = ((e.sp500 - firstSp) / firstSp * 100);
+      const cls = pct >= 0 ? 'pos' : 'neg';
+      spPerf = `<span class="${cls}">${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</span>`;
+    }
+    html += `<tr>
+      <td>${e.period}</td>
+      <td style="font-family:var(--font-mono);font-size:12px;color:var(--ink3)">${e.actions ? e.actions.toFixed(4) : '—'}</td>
+      <td>${fmtPl(e.pl)}</td>
+      <td>${e.val !== null && e.val !== undefined ? '$' + parseFloat(e.val).toFixed(0) : '—'}</td>
+      <td class="div-cell">${e.div !== null && e.div !== undefined ? '$' + parseFloat(e.div).toFixed(2) : '—'}</td>
+      <td>${e.sp500 ? '$' + parseFloat(e.sp500).toFixed(0) : '—'}</td>
+      <td>${spPerf}</td>
+      <td><button class="btn btn-danger" onclick="deleteEntry(${i})">✕</button></td>
+    </tr>`;
+  });
+
+  const totalDiv = entries.reduce((s, e) => s + (e.div || 0), 0);
+  tfoot.innerHTML = `<tr><td>Total</td><td></td><td></td><td></td><td>$${totalDiv.toFixed(2)}</td><td></td><td></td><td></td></tr>`;
+  tbody.innerHTML = html;
+}
+
+function renderCharts() {
+  const labels = entries.map(e => e.period);
+  const divData = entries.map(e => e.div || 0);
+
+  let cumDiv = 0;
+  const cumDivData = entries.map(e => { cumDiv += (e.div || 0); return parseFloat(cumDiv.toFixed(2)); });
+
+  const sp500Vals = entries.map(e => e.sp500);
+  const firstSp = sp500Vals.find(v => v !== null);
+  const sp500Norm = sp500Vals.map(v => v !== null && firstSp ? parseFloat((v / firstSp * 100).toFixed(2)) : null);
+
+  if (mainChart) mainChart.destroy();
+  mainChart = new Chart(document.getElementById('mainChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: 'Dividendes cumulés ($)', data: cumDivData, borderColor: '#D94F00', backgroundColor: 'rgba(217,79,0,0.08)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#D94F00', fill: true, tension: 0.3, yAxisID: 'y1' },
+        { label: 'S&P 500 (base 100)', data: sp500Norm, borderColor: '#1A6B3C', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [5,3], pointRadius: 3, pointBackgroundColor: '#1A6B3C', fill: false, tension: 0.3, yAxisID: 'y2', spanGaps: true }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#9C8E82', font: { family: 'DM Mono', size: 11 } } },
+        y1: { position: 'left', grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#D94F00', font: { family: 'DM Mono', size: 11 }, callback: v => '$' + v } },
+        y2: { position: 'right', grid: { drawOnChartArea: false }, ticks: { color: '#1A6B3C', font: { family: 'DM Mono', size: 11 } } }
+      }
+    }
+  });
+
+  if (divChart) divChart.destroy();
+  divChart = new Chart(document.getElementById('divChart').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: 'Dividende mensuel', data: divData, backgroundColor: entries.map(e => e.div ? 'rgba(217,79,0,0.75)' : 'rgba(0,0,0,0.06)'), borderColor: entries.map(e => e.div ? '#D94F00' : 'rgba(0,0,0,0.1)'), borderWidth: 1 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#9C8E82', font: { family: 'DM Mono', size: 11 }, autoSkip: false } },
+        y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#6B5E52', font: { family: 'DM Mono', size: 11 }, callback: v => '$' + v } }
+      }
+    }
+  });
+}
+
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+loadEntries();
+render();
+</script>
+</body>
+</html>
